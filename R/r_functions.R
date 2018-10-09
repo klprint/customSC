@@ -54,13 +54,14 @@ generate.frac.intron.meta <- function(sobj.ft, sobj.exon){
 
   keep.cells <- intersect(colnames(ft), colnames(ex))
 
+  cat("Number of cells in both sets:",length(keep.cells), "\n")
   ex <- ex[,keep.cells]
   ft <- ft[,keep.cells]
 
-  ex.sum <- as.data.frame(colSums(ex))
+  ex.sum <- as.data.frame(Matrix::colSums(ex))
   colnames(ex.sum) = "exonic"
 
-  ft.sum <- as.data.frame(colSums(ft))
+  ft.sum <- as.data.frame(Matrix::colSums(ft))
   colnames(ft.sum) <- "fullTranscript"
 
   cells.meta <- merge(ft.sum, ex.sum, by = 0)
@@ -71,21 +72,58 @@ generate.frac.intron.meta <- function(sobj.ft, sobj.exon){
     mutate(CellRank = 1:nrow(cells.meta)) %>%
     mutate(fracIntronic = 1 - (exonic / fullTranscript))
 
-  return(cells.meta)
+  sobj.exon@misc$cells.meta <- cells.meta
+
+  meta <- sobj.exon@meta.data
+  meta <- merge(meta, cells.meta, by.x = 0, by.y = "CellID", all.x = T)
+  row.names(meta) = meta$Row.names
+  meta <- meta[,-1]
+
+  sobj.exon@meta.data <- meta
+  return(sobj.exon)
 }
 
 # Plot the novel nuclei droplet identification plot
-frac.intron.plot <- function(cells.meta=NULL, fulltranscript=NULL, exon=NULL){
-  if(is.null(cells.meta)){
-    cells.meta <- generate.frac.intron.meta(fulltranscript, exon)
+frac.intron.plot <- function(exon=NULL, fulltranscript=NULL, frac.cut = NULL, rank.cut = NULL){
+  if(!is.null(fulltranscript)){
+    exon <- generate.frac.intron.meta(fulltranscript, exon)
   }
 
-  ggplot2::ggplot(cells.meta, aes(x = CellRank, y = fracIntronic)) +
+  p <- ggplot(exon@misc$cells.meta, aes(x = CellRank, y = fracIntronic)) +
     geom_point(size = 0.1) +
     theme_gray() +
     ylab("Fraction intronic UMI") +
     xlab("Full transcript UMI cell rank")
 
+  if(!is.null(frac.cut)){
+    p <- p + geom_hline(yintercept = frac.cut)
+  }
+
+  if(!is.null(rank.cut)){
+    p <- p + geom_vline(xintercept = rank.cut)
+  }
+
+  return(p)
+
+}
+
+#' Filtering droplets
+#'
+#' Filters droplets based on their properties, calculated using generate.frac.intron.meta
+#'
+#' @param sobj.exon Seurat object, pretreated with generate.frac.intron.meta
+filter.nuc.droplets <- function(sobj.exon, min.frac.intronic = 0.5, max.rank = NULL){
+  meta.cell <- sobj.exon@misc$cells.meta
+
+  meta.cell <- meta.cell %>% filter(fracIntronic >= min.frac.intronic)
+
+  if(!is.null(max.rank)){
+    meta.cell <- meta.cell %>% filter(CellRank <= max.rank)
+  }
+
+  meta.cell <- filter(meta.cell, CellID %in% rownames(sobj.exon@meta.data))
+
+  return(SubsetData(sobj.exon, cells.use = meta.cell$CellID))
 }
 
 #' Classical kneepoint plot

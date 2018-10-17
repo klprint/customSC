@@ -4,7 +4,8 @@
 \alias{make.seurat.object}
 \title{Generates a seurat object of 10x raw data}
 \usage{
-make.seurat.object(path, cell.name.addition = NULL, min.genes = 100)
+make.seurat.object(path, cell.name.addition = NULL, min.genes = 100,
+  project = "SeuratProject")
 }
 \arguments{
 \item{path}{Path to the 10x output}

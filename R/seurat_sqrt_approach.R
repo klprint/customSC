@@ -84,7 +84,7 @@ setMethod("doAnscombeTransform", "seurat",
           function(experiment, sf = NULL){
             if(is.null(sf)){
               cat("Calculate SF\n")
-              sf <- experiment@meta.data$nUMI / mean(experiment@meta.data$nUMI)
+              sf <- Matrix::colSums(experiment@data)
             }
 
             cat("Transform data\n")

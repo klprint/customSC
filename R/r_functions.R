@@ -1,4 +1,6 @@
 # Reading 10x cellranger data using the output directory
+library(tidyverse)
+
 get.10x.data <- function(path){
 
   barcodes <- read.table(file.path(path, "barcodes.tsv"), comment.char = "%")
@@ -176,6 +178,7 @@ filter.expressed.genes <- function(sobj, min_cells_expressed = 25){
 #' Exports a seurat object as CSV files
 #'
 #' This function creates a CSV file for:
+#'
 #'   - the data field
 #'   - the raw.data field
 #'   - the UMAP embedding
@@ -184,6 +187,7 @@ filter.expressed.genes <- function(sobj, min_cells_expressed = 25){
 #' @param folderpath Folder to export to. If not existent, it will be created.
 #' @param sample.name Prefix for each exported CSV
 #' @param alter.gene.names Dataframe to convert the names of the Genes.
+#'
 export.csvs <- function(obj, folderpath, sample.name = "seurat", alter.gene.names = NULL){
   exprs <- obj@data
   umi <- obj@raw.data

@@ -4,7 +4,7 @@
 \alias{filter.expressed.genes}
 \title{Filters out lowly expressed genes}
 \usage{
-filter.expressed.genes(sobj, min_cells_expressed = 25)
+\method{filter}{expressed.genes}(sobj, min_cells_expressed = 25)
 }
 \arguments{
 \item{sobj}{Seurat object}

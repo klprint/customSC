@@ -5,7 +5,8 @@
 \title{Exports a seurat object as CSV files}
 \usage{
 export.csvs(obj, folderpath, sample.name = "seurat",
-  alter.gene.names = NULL)
+  alter.gene.names.df = NULL, alter.gene.names.from = "Gene.stable.ID",
+  alter.gene.names.to = "Gene.name", min.cells = 10)
 }
 \arguments{
 \item{obj}{Seurat object}
@@ -14,11 +15,17 @@ export.csvs(obj, folderpath, sample.name = "seurat",
 
 \item{sample.name}{Prefix for each exported CSV}
 
+\item{alter.gene.names.from}{Column name of the alter.gene.names dataframe which corresponds to the row.names in the data and raw.data slot of the seurat object}
+
+\item{alter.gene.names.to}{Column name which contains the new gene names in the alter.gene.names dataframe}
+
 \item{alter.gene.names}{Dataframe to convert the names of the Genes.}
 }
 \description{
 This function creates a CSV file for:
-  - the data field
+}
+\details{
+- the data field
   - the raw.data field
   - the UMAP embedding
 }

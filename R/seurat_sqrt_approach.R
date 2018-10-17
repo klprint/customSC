@@ -116,11 +116,6 @@ multiFindDispGenes <- function(multiseurat, mean.cutoff = .25, var.per.mean.cuto
   return(multiseurat)
 }
 
-# Do PCA
-setGeneric(name = "doPCA",
-           def = function(experiment, do.scale = F){
-             standardGeneric("doPCA")
-           })
 
 plotKneepoint <- function(cnts, sample.name = NULL){
   require(tidyverse)

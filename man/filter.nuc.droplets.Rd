@@ -4,7 +4,7 @@
 \alias{filter.nuc.droplets}
 \title{Filtering droplets}
 \usage{
-filter.nuc.droplets(sobj.exon, min.frac.intronic = 0.5,
+\method{filter}{nuc.droplets}(sobj.exon, min.frac.intronic = 0.5,
   max.rank = NULL, max.frac.intronic = NULL, min.rank = NULL)
 }
 \arguments{

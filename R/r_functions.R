@@ -187,30 +187,46 @@ filter.expressed.genes <- function(sobj, min_cells_expressed = 25){
 #' @param folderpath Folder to export to. If not existent, it will be created.
 #' @param sample.name Prefix for each exported CSV
 #' @param alter.gene.names Dataframe to convert the names of the Genes.
+#' @param alter.gene.names.from Column name of the alter.gene.names dataframe which corresponds to the row.names in the data and raw.data slot of the seurat object
+#' @param alter.gene.names.to Column name which contains the new gene names in the alter.gene.names dataframe
 #'
-export.csvs <- function(obj, folderpath, sample.name = "seurat", alter.gene.names = NULL){
+export.csvs <- function(obj, folderpath, sample.name = "seurat",
+                        alter.gene.names.df = NULL,
+                        alter.gene.names.from = "Gene.stable.ID",
+                        alter.gene.names.to = "Gene.name",
+                        min.cells = 10){
   exprs <- obj@data
   umi <- obj@raw.data
   emb <- obj@dr$umap@cell.embeddings
 
   dir.create(folderpath, recursive = T)
 
-  if(!is.null(alter.gene.names)){
+  if(!is.null(alter.gene.names.df)){
+    cat("Renaming the genes\n")
+    exprs <- exprs[row.names(exprs) %in% alter.gene.names.df[[alter.gene.names.from]], ]
+    row.names(exprs) <- alter.gene.names.df[[alter.gene.names.to]][match(row.names(exprs), alter.gene.names.df[[alter.gene.names.from]])]
 
+    umi <- umi[row.names(umi) %in% alter.gene.names.df[[alter.gene.names.from]], ]
+    row.names(umi) <- alter.gene.names.df[[alter.gene.names.to]][match(row.names(umi), alter.gene.names.df[[alter.gene.names.from]])]
   }
+
+  exprs <- exprs[,match(colnames(exprs), row.names(emb))[!is.na(match(colnames(exprs), row.names(emb)))]]
+  umi <- umi[,match(colnames(umi), row.names(emb))[!is.na(match(colnames(umi), row.names(emb)))]]
 
   exprs.gz <- gzfile(file.path(folderpath, paste0(sample.name,"_exprs.csv.gz")), "w" )
   umi.gz <- gzfile(file.path(folderpath, paste0(sample.name,"_umi.csv.gz")), "w")
+
+  cat("Writing the embedding\n")
+  write.table(as.matrix(emb), file = file.path(folderpath, paste0(sample.name, "_embedding.csv")),
+              quote = F, sep = ",", col.names = F)
 
   cat("Writing the expression matrix\n")
   write.table(as.matrix(exprs), file = exprs.gz, quote = F, sep = ",")
   close(exprs.gz)
 
   cat("Writing the UMI counts\n")
-  write.table(as.matrix(umi), file = umi.gz, quote = F, sep = ",")
+  write.table(as.matrix(umi[Matrix::rowSums(umi > 0) > min.cells, ]), file = umi.gz, quote = F, sep = ",")
   close(umi.gz)
 
-  cat("Writing the embedding\n")
-  write.table(as.matrix(emb), file = file.path(folderpath, paste0(sample.name, "_embedding.csv")),
-              quote = F, sep = ",", col.names = F)
+
 }

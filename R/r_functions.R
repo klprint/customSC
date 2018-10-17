@@ -230,3 +230,31 @@ export.csvs <- function(obj, folderpath, sample.name = "seurat",
 
 
 }
+
+make.venn <- function(..., names = NULL){
+  Lists <- list(...)  #put the word vectors into a list to supply lapply
+  Lists <- lapply(Lists, function(x) as.character(unlist(x)))
+  items <- sort(unique(unlist(Lists)))   #put in alphabetical order
+  MAT <- matrix(rep(0, length(items)*length(Lists)), ncol=length(Lists))  #make a matrix of 0's
+  if(is.null(names)){
+    colnames(MAT) <- paste0("List ", 1:length(Lists))
+  }else{
+    colnames(MAT) <- names
+  }
+
+  rownames(MAT) <- items
+  lapply(seq_along(Lists), function(i) {   #fill the matrix
+    MAT[items %in% Lists[[i]], i] <<- table(Lists[[i]])
+  })
+
+  MAT   #look at the results
+  library(venneuler)
+  v <- venneuler(MAT)
+  plot(v)
+}
+
+get.venn <- function(x,y){
+  c(x = length(x),
+    y = length(y),
+    intersect = length(intersect(x, y)))
+}

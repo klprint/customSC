@@ -101,18 +101,20 @@ setMethod("findDispGenes", "seurat",
             return(experiment)
           })
 
-multiFindDispGenes <- function(multiseurat, mean.cutoff = .25, var.per.mean.cutoff = .95){
+findDispGenesMulti <- function(multiseurat, id.col = "sampleID", mean.cutoff = .25, var.per.mean.cutoff = .95, min.cells.per.gene = 10){
   disp.genes <- list()
-  for(sample in levels(multiseurat@meta.data$orig.ident)){
+  for(sample in unique(multiseurat@meta.data[[id.col]])){
     cat("Processig", sample, "\n")
-    tmp.s <- SubsetData(multiseurat, subset.name = "orig.ident", accept.value = sample)
-    tmp.s <- findDispGenes(tmp.s, mean.cutoff = mean.cutoff, var.per.mean.cutoff = var.per.mean.cutoff)
+    tmp.s <- SubsetData(multiseurat, subset.name = id.col, accept.value = sample)
+    tmp.s <- customSC::filter.expressed.genes(tmp.s, min_cells_expressed = min.cells.per.gene)
+    tmp.s <- customSC::findDispGenes(tmp.s, mean.cutoff = mean.cutoff, var.per.mean.cutoff = var.per.mean.cutoff)
     if(is.logical(multiseurat@var.genes)){
       multiseurat@var.genes <- tmp.s@var.genes
     }else{
       multiseurat@var.genes <- intersect(multiseurat@var.genes, tmp.s@var.genes)
     }
   }
+
   return(multiseurat)
 }
 

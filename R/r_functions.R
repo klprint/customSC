@@ -168,7 +168,7 @@ make.knee.plot <- function(sobj, max_rank = 2e4){
 filter.expressed.genes <- function(sobj, min_cells_expressed = 25){
   exp <- sobj@data
 
-  exp <- exp[Matrix::rowSums(exp > 1) >= min_cells_expressed, ]
+  exp <- exp[Matrix::rowSums(exp > 0) >= min_cells_expressed, ]
 
   sobj@data <- exp
 

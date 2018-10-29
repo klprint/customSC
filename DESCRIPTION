@@ -12,4 +12,5 @@ LazyData: true
 RoxygenNote: 6.1.0
 Imports:
   Seurat,
-  tidyverse
+  tidyverse,
+  reticulate

@@ -230,3 +230,19 @@ export.csvs <- function(obj, folderpath, sample.name = "seurat",
 
 
 }
+
+MergeSeuratMulti <- function(sobj.list){
+  out.merged <- NULL
+  for(n in names(sobj.list)){
+    tmp = sobj.list[[n]]
+
+    cat("Processing", n, "\n")
+    if(is.null(out.merged)){
+      out.merged <- tmp
+    }else{
+      out.merged <- MergeSeurat(out.merged, tmp, do.normalize = F, do.scale = F, do.center = F)
+    }
+  }
+
+  return(out.merged)
+}

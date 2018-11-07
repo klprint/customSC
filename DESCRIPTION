@@ -13,4 +13,6 @@ RoxygenNote: 6.1.0
 Imports:
   Seurat,
   tidyverse,
-  reticulate
+  reticulate,
+  RCurl,
+  rjson

@@ -65,8 +65,8 @@ setMethod("findDispGenes", "seurat",
               experiment@meta.data$sf <- experiment@meta.data$nUMI / mean(experiment@meta.data$nUMI)
             }
 
-            means <- apply(experiment@data / experiment@meta.data$sf, 1, mean)
-            vars <- apply(experiment@data / experiment@meta.data$sf, 1, var)
+            means <- apply(experiment@raw.data / experiment@meta.data$sf, 1, mean)
+            vars <- apply(experiment@raw.data / experiment@meta.data$sf, 1, var)
             vars.per.means = vars / means
 
             disp.genes <- names(means[means > quantile(means, mean.cutoff, na.rm = T)])
